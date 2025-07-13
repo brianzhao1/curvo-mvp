@@ -18,15 +18,14 @@ def generate_insight(ticker, articles):
     joined = "\n\n".join([f"Title: {a}" for a in articles])
     prompt = f"""
 You are a financial analyst. Analyze this news about {ticker.upper()} and return ONE insight in the following structure:
-```
+
 <Most important headline title>  
 
 Signal: <Emoji + summary (e.g. 🟡 Anticipatory Bullish - Sector-specific)> 
 
-📊Impact on You: <What traders/investors might expect, including stats, historical analogs, ETF impact>  
+📊 Impact on You: <What traders/investors might expect, including stats, historical analogs, ETF impact>  
 
-🧠What to Consider: <Key strategic thoughts – e.g., whether to fade the hype, rotation signals, position sizing ideas, or peer confirmations>
-```
+🧠 What to Consider: <Key strategic thoughts as bullets – e.g., whether to fade the hype, rotation signals, position sizing ideas, or peer confirmations>
 
 Keep it tight, sharp, and market-aware. Avoid generic sentiment. Be useful.
     
