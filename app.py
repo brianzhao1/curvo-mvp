@@ -15,7 +15,7 @@ def get_news(ticker):
     return headlines[:7]
 
 def generate_insight(ticker, articles):
-    joined = "\n\n".join([f"Title: {a['title']}\nSnippet: {a['snippet']}" for a in articles])
+    joined = "\n\n".join([f"Title: {a}" for a in articles])
     prompt = f"""
 You are a financial analyst. Analyze this news about {ticker.upper()} and return ONE insight in the following structure:
 
