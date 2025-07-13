@@ -51,6 +51,6 @@ if st.button("Generate Market Insight"):
                 st.markdown(insight)
                 with st.expander("Sources"):
                     for a in articles:
-                        st.markdown(f"- [{a['title']}]({a['url']})")
+                        st.markdown(f"- [{a}]")
         except Exception as e:
             st.error(f"Error: {e}")
