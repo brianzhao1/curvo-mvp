@@ -7,8 +7,8 @@ import os
 # Set your OpenAI key securely
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-def get_news(query, limit=5):
-    url = f"https://www.google.com/search?q={query}+stock+news&hl=en&gl=us&tbm=nws"
+def get_news(ticker, limit=5):
+    url = f"https://finance.yahoo.com/quote/{ticker}?p={ticker}"
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -18,17 +18,30 @@ def get_news(query, limit=5):
     }
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
-    
-    results = []
-    for result in soup.select("div.dbsr")[:limit]:
+
+    headlines = []
+    seen = set()
+    for li in soup.select("li.js-stream-content")[:limit * 2]:  # fetch extras in case of dupes
         try:
-            title = result.select_one("div[role='heading']").text
-            link = result.a['href']
-            snippet = result.select_one("div.Y3v8qd").text
-            results.append({"title": title, "url": link, "snippet": snippet})
+            title_tag = li.select_one("h3")
+            if title_tag:
+                title = title_tag.text.strip()
+                if title in seen:
+                    continue
+                seen.add(title)
+                snippet = li.select_one("p") or title_tag  # fallback to title if no snippet
+                headlines.append({
+                    "title": title,
+                    "snippet": snippet.text.strip() if snippet else "",
+                    "url": "https://finance.yahoo.com" + li.a["href"]
+                })
+            if len(headlines) >= limit:
+                break
         except Exception:
             continue
-    return results
+
+    return headlines
+
 
 def generate_insight(ticker, articles):
     joined = "\n\n".join([f"Title: {a['title']}\nSnippet: {a['snippet']}" for a in articles])
