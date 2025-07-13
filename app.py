@@ -9,17 +9,24 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 def get_news(query, limit=5):
     url = f"https://www.google.com/search?q={query}+stock+news&hl=en&gl=us&tbm=nws"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/119.0.0.0 Safari/537.36"
+        )
+    }
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
+    
     results = []
-    for g in soup.select("div.dbsr")[:limit]:
+    for result in soup.select("div.dbsr")[:limit]:
         try:
-            title = g.select_one("div.JheGif.nDgy9d").text
-            link = g.a['href']
-            snippet = g.select_one("div.Y3v8qd").text
+            title = result.select_one("div[role='heading']").text
+            link = result.a['href']
+            snippet = result.select_one("div.Y3v8qd").text
             results.append({"title": title, "url": link, "snippet": snippet})
-        except:
+        except Exception:
             continue
     return results
 
