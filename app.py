@@ -7,41 +7,12 @@ import os
 # Set your OpenAI key securely
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-def get_news(ticker, limit=5):
+def get_news(ticker):
     url = f"https://finance.yahoo.com/quote/{ticker}?p={ticker}"
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/119.0.0.0 Safari/537.36"
-        )
-    }
-    r = requests.get(url, headers=headers)
+    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(r.text, "html.parser")
-
-    headlines = []
-    seen = set()
-    for li in soup.select("li.js-stream-content")[:limit * 2]:  # fetch extras in case of dupes
-        try:
-            title_tag = li.select_one("h3")
-            if title_tag:
-                title = title_tag.text.strip()
-                if title in seen:
-                    continue
-                seen.add(title)
-                snippet = li.select_one("p") or title_tag  # fallback to title if no snippet
-                headlines.append({
-                    "title": title,
-                    "snippet": snippet.text.strip() if snippet else "",
-                    "url": "https://finance.yahoo.com" + li.a["href"]
-                })
-            if len(headlines) >= limit:
-                break
-        except Exception:
-            continue
-
-    return headlines
-
+    headlines = [a.text for a in soup.find_all("a") if a.text and len(a.text) > 40]
+    return headlines[:7]
 
 def generate_insight(ticker, articles):
     joined = "\n\n".join([f"Title: {a['title']}\nSnippet: {a['snippet']}" for a in articles])
@@ -78,12 +49,6 @@ if st.button("Generate Market Insight"):
             else:
                 insight = generate_insight(ticker, articles)
                 st.markdown(insight)
-
-                st.markdown("---")
-                st.subheader("📰 Raw Headlines")
-                for a in articles:
-                    st.markdown(f"- [{a['title']}]({a['url']})")
-                    st.caption(a['snippet'])
                 with st.expander("Sources"):
                     for a in articles:
                         st.markdown(f"- [{a['title']}]({a['url']})")
