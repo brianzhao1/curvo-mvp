@@ -1,11 +1,11 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
-import openai
+from openai import OpenAI
 import os
 
 # Set your OpenAI key securely
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def get_news(ticker):
     url = f"https://finance.yahoo.com/quote/{ticker}?p={ticker}"
@@ -29,12 +29,12 @@ Keep it tight, sharp, and market-aware. Avoid generic sentiment. Be useful.
 {joined}
 """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.5,
+    response = client.responses.create(
+        model="gpt-4.1",
+        input=prompt
     )
-    return response.choices[0].message.content.strip()
+
+    return response.output_text.strip()
 
 # Streamlit UI
 st.title("📰 Stock Sentiment Scanner (GPT-4 Enhanced)")
