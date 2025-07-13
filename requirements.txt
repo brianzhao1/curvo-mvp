@@ -1,4 +1,4 @@
 streamlit
-textblob
-requests
+openai
 beautifulsoup4
+requests
