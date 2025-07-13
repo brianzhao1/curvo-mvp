@@ -78,6 +78,12 @@ if st.button("Generate Market Insight"):
             else:
                 insight = generate_insight(ticker, articles)
                 st.markdown(insight)
+
+                st.markdown("---")
+                st.subheader("📰 Raw Headlines")
+                for a in articles:
+                    st.markdown(f"- [{a['title']}]({a['url']})")
+                    st.caption(a['snippet'])
                 with st.expander("Sources"):
                     for a in articles:
                         st.markdown(f"- [{a['title']}]({a['url']})")
